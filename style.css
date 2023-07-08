@@ -1,3 +1,9 @@
+body{
+    user-select: none;
+    -webkit-user-drag: none;
+    overflow: hidden;
+}
+
 #canvas {
     border: 1px solid black;
 }

@@ -10,30 +10,70 @@ context.lineWidth = 20; // 修改笔触大小为20
 context.lineCap = 'round';
 context.strokeStyle = 'black';
 
+let lx=0,ly=0;
+
 // 开始绘制
 function startDrawing(e) {
     isDrawing = true;
-    context.beginPath();
+    const rect = canvas.getBoundingClientRect();
+    lx=e.clientX - rect.left;
+    ly=e.clientY - rect.top;
     draw(e);
     update(identify());
+}
+function startTouching(e) {
+    isDrawing = true;
+    const touch=e.changedTouches[0];
+    lx=e.pageX;
+    ly=e.pageY;
+    touching(e);
+    update(identify());
+    console.log(1);
 }
 
 // 绘制
 function draw(e) {
     if (!isDrawing) return;
     const rect = canvas.getBoundingClientRect();
+    context.beginPath();
+    context.moveTo(lx,ly);
     const x = e.clientX - rect.left;
     const y = e.clientY - rect.top;
     context.lineTo(x, y);
+    lx=x;
+    ly=y;
     context.stroke();
+    context.closePath();
     update(identify());
+}
+function touching(e) {
+    const touch=e.touches[0];
+    if (!isDrawing) return;
+    const rect = canvas.getBoundingClientRect();
+    context.beginPath();
+    context.moveTo(lx,ly);
+    const x = touch.pageX - rect.left;
+    const y = touch.pageY - rect.top;
+    context.lineTo(x, y);
+    lx=x;
+    ly=y;
+    context.stroke();
+    context.closePath();
+    update(identify());
+    console.log(touch);
+    // console.log(`touch at (${x},${y})`);
 }
 
 // 停止绘制
 function stopDrawing() {
     if (isDrawing) {
         isDrawing = false;
-        context.closePath();
+    }
+    update(identify());
+}
+function stopTouching() {
+    if (isDrawing) {
+        isDrawing = false;
     }
     update(identify());
 }
@@ -43,10 +83,10 @@ canvas.addEventListener('mousedown', startDrawing);
 canvas.addEventListener('mousemove', draw);
 canvas.addEventListener('mouseup', stopDrawing);
 canvas.addEventListener('mouseout', stopDrawing);
-canvas.addEventListener('touchstart', startDrawing);
-canvas.addEventListener('touchmove', draw);
-canvas.addEventListener('touchend', stopDrawing);
-canvas.addEventListener('touchcancel', stopDrawing);
+canvas.addEventListener('touchstart', startTouching, false);
+canvas.addEventListener('touchmove', touching, false);
+canvas.addEventListener('touchend', stopTouching, false);
+canvas.addEventListener('touchcancel', stopTouching, false);
 
 sw.onclick=()=>{
     if(sw.checked){
